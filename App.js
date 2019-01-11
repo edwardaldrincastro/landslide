@@ -1,22 +1,7 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow
- */
-
 import React, { Component } from 'react';
-import { Platform, StyleSheet, Text, View, Button } from 'react-native';
+import { StyleSheet, Text, View, ImageBackground, NetInfo, } from 'react-native';
 
 const axios = require('axios')
-
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
-  android:
-    'Double tap R on your keyboard to reload,\n' +
-    'Shake or press menu button for dev menu',
-});
 
 export default class App extends Component {
   state = {
@@ -27,66 +12,70 @@ export default class App extends Component {
   }
   getData = async () => {
     try {
-      response = await axios.get("http://192.168.190.24/TestApp/db.php")
-
-      // axios({
-      //   method:'get',
-      //   url:'http://bit.ly/2mTM3nY',
-      //   responseType:'stream'
-      // })
-      //   .then(function (response) {
-      //     response.data.pipe(fs.createWriteStream('ada_lovelace.jpg'))
-      //   });
-      // await console.log(response)
+      response = NetInfo.isConnected ? await axios.get("http://192.168.56.1/webpage/getWarning.php") : alert('No internet')
+      await console.log('payload', response.data)
       await this.setResult(response.data)
     } catch {
-      alert('An error has occured')
+      // alert('An error has occured')
+      console.log('error')
     }
   }
   setResult = (response) => {
-    const newAge = response.age
-    const age = this.state.result.age
-
-    // console.log('res',newAge)
-    // console.log(age)
-    // if (response.age !== this.state.result.age) {
-    this.setState({
-      result: response
+    response.map(item => {
+      this.setState({
+        result: item
+      })
     })
-    // } 
-    // else {
-    //   console.log('no update')
-    // }
   }
-  warningChecker = (age) => {
-
-    if (age < 1) {
-      return (<Text>No Warning{age}</Text>)
-    } else if (age < 16) {
-      return (<Text>Yellow Warning{age}</Text>)
-    } else if (age < 30) {
-      return (<Text>Orange Warning{age}</Text>)
-    } else if (age > 31) {
-      return (<Text>Red Warning{age}</Text>)
-    } else {
-
-    }
-  }
-
-  // componentDidMount() {
-  //   this.getData()
-  // }
   render() {
+    const red = '#9C090E'
+    const orange = '#FF760B'
+    const yellow = '#F0C415'
+    const disabled = '#3C3C3C'
+    let warningColor = this.state.result.warning
+
+    console.log(this.state)
     return (
       <View style={styles.container}>
-        <Text style={styles.welcome}>Welcome to React Native!</Text>
-        {this.warningChecker(this.state.result.age)}
-        {/* <Text style={styles.instructions}>To get started, edit App.js</Text> */}
-        {/* <Text style={styles.instructions}>{instructions}</Text> */}
-        {/* <Text>Name: {this.state.result.name}</Text>
-        <Text>Age: {this.state.result.age}</Text> */}
-        <View onPress={this.getData()} />
-        {/* <Button title='get' onPress={this.getData()}/> */}
+        <ImageBackground source={require('./mountain.jpg')} style={{ height: '100%', width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center',}}>
+            <Text style={styles.title}>LANDSLIDE <Text style={{ fontWeight: 'normal', fontSize: 36 }}>ADVISORY</Text></Text>
+          </View>
+          <View style={[styles.warning, { backgroundColor: warningColor === 'Red' ? red : disabled }]}>
+            <View style={{ flex: 1.1 }}>
+              <Text style={{ fontWeight: 'bold', fontSize: 30, color: '#fff' }}>RED </Text>
+              <Text style={{ fontWeight: 'normal', fontSize: 30, color: '#fff' }}>WARNING</Text>
+            </View>
+            <View style={{ flex: 0.9, justifyContent: 'center' }}>
+              <Text style={{ fontWeight: 'normal', fontSize: 16, color: '#fff' }}>
+                Highly Susceptible! Be Alert and Ready to Evacuate.</Text></View>
+          </View>
+
+          <View style={[styles.warning, { backgroundColor: warningColor === 'Orange' ? orange : disabled  }]}>
+            <View style={{ flex: 1.1 }}>
+              <Text style={{ fontWeight: 'bold', fontSize: 30, color: '#fff' }}>ORANGE </Text>
+              <Text style={{ fontWeight: 'normal', fontSize: 30, color: '#fff' }}>WARNING</Text>
+            </View>
+            <View style={{ flex: 0.9, justifyContent: 'center' }}>
+              <Text style={{ fontWeight: 'normal', fontSize: 16, color: '#fff' }}>
+                Susceptible! Be Cautious.</Text></View>
+          </View>
+
+          <View style={[styles.warning, { backgroundColor: warningColor === 'Yellow' ? yellow : disabled  }]}>
+            <View style={{ flex: 1.1 }}>
+              <Text style={{ fontWeight: 'bold', fontSize: 30, color: '#fff' }}>YELLOW </Text>
+              <Text style={{ fontWeight: 'normal', fontSize: 30, color: '#fff' }}>WARNING</Text>
+            </View>
+            <View style={{ flex: 0.9, justifyContent: 'center' }}>
+              <Text style={{ fontWeight: 'normal', fontSize: 16, color: '#fff' }}>
+                Marginally Stable! Be Prepared.</Text></View>
+          </View>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', }}>
+            <Text style={{ fontSize: 18, color: '#fff' }}>San Martin, Angono, Rizal</Text>
+            <Text style={{ fontSize: 18, color: '#fff' }}>{this.state.result.timestamp}</Text>
+          </View>
+          <View onPress={this.getData()} />
+        </ImageBackground>
       </View>
     );
   }
@@ -97,18 +86,30 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    backgroundColor: '#D1D1D1',
   },
-  welcome: {
-    fontSize: 20,
+  title: {
+    fontSize: 36,
     textAlign: 'center',
     margin: 10,
+    fontWeight: 'bold',
+    color: '#000',
   },
   instructions: {
     textAlign: 'center',
     color: '#333333',
     marginBottom: 5,
   },
+  warning: {
+    flex: 1,
+    maxHeight: 120,
+    width: '80%',
+    backgroundColor: '#fff',
+    margin: 10,
+    padding: 15,
+    flexDirection: 'row',
+    // borderRadius: 75
+  }
 });
 
 

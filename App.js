@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, ImageBackground, NetInfo, Button } from 'react-native';
+import { StyleSheet, Text, View, ImageBackground, NetInfo } from 'react-native';
 
 const axios = require('axios')
 const PushNotification = require('react-native-push-notification');
@@ -79,11 +79,16 @@ export default class App extends Component {
     });
 
   }
-getData = async (localWarning) => {
+  getData = async (localWarning) => {
     try {
-      response = NetInfo.isConnected ? await axios.get("http://172.20.10.3/webpage/getWarning.php") : alert('No internet')
-      await console.log('payload', response.data)
-      await this.setResult(response.data, localWarning)
+
+      if (NetInfo.isConnected) {
+        response = await axios.get("http://172.20.10.3/webpage/getWarning.php")
+        await console.log('payload', response.data)
+        await this.setResult(response.data, localWarning)
+      } else {
+        console.log("No Internet Connection")
+      }
     } catch {
       console.log('error')
     }

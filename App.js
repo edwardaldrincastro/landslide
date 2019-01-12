@@ -45,11 +45,6 @@ PushNotification.configure({
 export default class App extends Component {
   state = {
     result: '',
-    currentWarning: 'same'
-  }
-
-  componentDidMount() {
-    this.state.result.warning
   }
 
   handleNotification = (message) => {
@@ -61,7 +56,7 @@ export default class App extends Component {
       autoCancel: true, // (optional) default: true
       largeIcon: "ic_launcher", // (optional) default: "ic_launcher"
       smallIcon: "ic_notification", // (optional) default: "ic_notification" with fallback for "ic_launcher"
-      bigText: message, // (optional) default: "message" prop
+      bigText: message + 'warning', // (optional) default: "message" prop
       subText: "Landslide Warning", // (optional) default: none
       color: "red", // (optional) default: system default
       vibrate: true, // (optional) default: true
@@ -84,9 +79,9 @@ export default class App extends Component {
     });
 
   }
-  getData = async (localWarning) => {
+getData = async (localWarning) => {
     try {
-      response = NetInfo.isConnected ? await axios.get("http://192.168.56.1/webpage/getWarning.php") : alert('No internet')
+      response = NetInfo.isConnected ? await axios.get("http://172.20.10.3/webpage/getWarning.php") : alert('No internet')
       await console.log('payload', response.data)
       await this.setResult(response.data, localWarning)
     } catch {
@@ -98,6 +93,8 @@ export default class App extends Component {
     this.setState({
       result: payload
     })
+
+
     if (payload.warning === localWarning) {
       this.handleMessage(payload.warning, false)
     } else {
